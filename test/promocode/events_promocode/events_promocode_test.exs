@@ -3,15 +3,6 @@ defmodule Promocode.EventsPromocodeTest do
 
   alias Promocode.EventsPromocode
 
-  setup do
-    {:ok, event} =
-      attrs
-      |> Enum.into(%{event_latitude: 120.5, event_longitude: 120.5, event_name: "some event_name", event_worth: "121", is_active: true, expiry_date: "2019-02-14 00:00:00"})
-      |> EventsPromocode.create_event()
-
-    event
-  end
-
   describe "events" do
     alias Promocode.EventsPromocode.Event
 
@@ -83,15 +74,16 @@ defmodule Promocode.EventsPromocodeTest do
     # alias Promocode.EventsPromocode.Promocode
 
 
-    @valid_attrs %{event_id: 1, is_active: false, in_use: true, promo_code_worth: "120.5"}
+    @valid_attrs %{is_active: false, in_use: true, promo_code_worth: "1245"}
     # @update_attrs %{is_active: false, promo_code_tag: "some updated promo_code_tag", promo_code_worth: "456.7"}
     @invalid_attrs %{event_id: nil, is_active: nil, promo_code_tag: nil, promo_code_worth: nil}
 
     def promocode_fixture(attrs \\ %{}) do
-      i event_fixture
+      event = event_fixture()
+      valid_attr = Map.put(@valid_attrs, :event_id, event.id)
       {:ok, promocode} =
         attrs
-        |> Enum.into(@valid_attrs)
+        |> Enum.into(valid_attr)
         |> EventsPromocode.create_promocode()
 
       promocode
@@ -107,12 +99,12 @@ defmodule Promocode.EventsPromocodeTest do
     #   assert EventsPromocode.get_promocode!(promocode.id) == promocode
     # end
 
-    # test "create_promocode/1 with valid data creates a promocode" do
-    #   assert {:ok, %Promocode{} = promocode} = EventsPromocode.create_promocode(@valid_attrs)
-    #   assert promocode.is_active == true
-    #   assert promocode.promo_code_tag == "some promo_code_tag"
-    #   assert promocode.promo_code_worth == Decimal.new("120.5")
-    # end
+    test "create_promocode/1 with valid data creates a promocode" do
+      promocode = promocode_fixture()
+      assert promocode.is_active == false
+      assert promocode.in_use == true
+      assert promocode.promo_code_worth == Decimal.new("1245")
+    end
 
     test "create_promocode/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = EventsPromocode.create_promocode(@invalid_attrs)
@@ -126,11 +118,11 @@ defmodule Promocode.EventsPromocodeTest do
     #   assert promocode.promo_code_worth == Decimal.new("456.7")
     # end
 
-    # test "update_promocode/2 with invalid data returns error changeset" do
-    #   promocode = promocode_fixture()
-    #   assert {:error, %Ecto.Changeset{}} = EventsPromocode.update_promocode(promocode, @invalid_attrs)
-    #   assert promocode == EventsPromocode.get_promocode!(promocode.id)
-    # end
+    test "update_promocode/2 with invalid data returns error changeset" do
+      promocode = promocode_fixture()
+      assert {:error, %Ecto.Changeset{}} = EventsPromocode.update_promocode(promocode, @invalid_attrs)
+      assert promocode == EventsPromocode.get_promocode(promocode.id)
+    end
 
     # test "delete_promocode/1 deletes the promocode" do
     #   promocode = promocode_fixture()
